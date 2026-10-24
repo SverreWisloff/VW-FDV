@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-24T17:05:32.242Z",
+  "updatedAt": "2026-10-24T17:30:50.763Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -9,6 +9,10 @@
     {
       "id": "a69873dc9",
       "name": "Rense sluket på badet"
+    },
+    {
+      "id": "a48d74b7a9",
+      "name": "Ute"
     }
   ],
   "tasks": [],
