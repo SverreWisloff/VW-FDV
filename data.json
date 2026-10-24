@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-24T17:32:57.083Z",
+  "updatedAt": "2026-10-24T17:37:16.181Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -51,6 +51,20 @@
         "type": "fixed-annual",
         "month": 10,
         "day": 1
+      }
+    },
+    {
+      "id": "t47a43d3c3",
+      "title": "Resne sluket",
+      "areaId": "ae8c428ca9",
+      "notes": "",
+      "active": true,
+      "createdAt": "2026-10-24",
+      "schedule": {
+        "type": "interval",
+        "count": 1,
+        "unit": "month",
+        "anchor": "2026-10-24"
       }
     }
   ],
