@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-24T17:31:48.119Z",
+  "updatedAt": "2026-10-24T17:31:52.753Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -33,6 +33,10 @@
     {
       "id": "aaca338ff3",
       "name": "Carport"
+    },
+    {
+      "id": "a958201326",
+      "name": "Tak"
     }
   ],
   "tasks": [],
