@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-10-24T19:02:40.287Z",
+  "updatedAt": "2026-10-24T19:02:50.934Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -43,6 +43,11 @@
     {
       "id": "r424ae55daf",
       "name": "Tak",
+      "areaId": ""
+    },
+    {
+      "id": "reac2ad84ae",
+      "name": "Bad-Gjeste",
       "areaId": ""
     }
   ],
