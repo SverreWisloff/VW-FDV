@@ -1,28 +1,26 @@
-// Validering, id-er og normalisering av datamodellen.
+// Validering, id-er, normalisering og migrering av datamodellen.
 
 import { MONTH_NAMES, daysInMonth, isDateString, todayISO } from "./dates.js";
 import { UNITS, isValidSchedule } from "./schedule.js";
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
-export function newId(prefix) {
+export function newId(prefix = "id") {
   const raw = globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2);
-  return `${prefix}${raw.replace(/-/g, "").slice(0, 9)}`;
+  return `${prefix}${raw.replace(/-/g, "").slice(0, 10)}`;
 }
 
-export function createArea(name) {
-  return { id: newId("a"), name: String(name ?? "").trim() };
-}
-
-export function createTask({ title, areaId = "", notes = "", schedule, createdAt } = {}) {
+export function emptyData() {
   return {
-    id: newId("t"),
-    title: String(title ?? "").trim(),
-    areaId: String(areaId ?? ""),
-    notes: String(notes ?? ""),
-    active: true,
-    createdAt: createdAt || todayISO(),
-    schedule,
+    schemaVersion: SCHEMA_VERSION,
+    updatedAt: "",
+    areas: [],
+    rooms: [],
+    fdvTaskTypes: [],
+    logEntries: [],
+    // beholdes midlertidig for migrering / bakoverkompat
+    tasks: [],
+    completions: [],
   };
 }
 
@@ -31,34 +29,130 @@ function normalizeArea(area) {
   return {
     ...area,
     id: typeof area.id === "string" && area.id ? area.id : newId("a"),
-    name: typeof area.name === "string" ? area.name : "",
+    name: typeof area.name === "string" ? area.name.trim() : "",
   };
 }
 
-function normalizeTask(task) {
-  if (!task || typeof task !== "object") return null;
+function normalizeRoom(room) {
+  if (!room || typeof room !== "object") return null;
   return {
-    ...task,
-    id: typeof task.id === "string" && task.id ? task.id : newId("t"),
-    title: typeof task.title === "string" ? task.title : "",
-    areaId: typeof task.areaId === "string" ? task.areaId : "",
-    notes: typeof task.notes === "string" ? task.notes : "",
-    active: task.active !== false,
-    createdAt: isDateString(task.createdAt) ? task.createdAt : "",
-    schedule: task.schedule && typeof task.schedule === "object" ? task.schedule : null,
+    ...room,
+    id: typeof room.id === "string" && room.id ? room.id : newId("r"),
+    name: typeof room.name === "string" ? room.name.trim() : "",
+    areaId: typeof room.areaId === "string" ? room.areaId : "",
   };
 }
 
-function normalizeCompletion(completion) {
-  if (!completion || typeof completion !== "object") return null;
+function normalizeFdvType(type) {
+  if (!type || typeof type !== "object") return null;
+
+  const rooms = Array.isArray(type.rooms)
+    ? type.rooms.filter((r) => typeof r === "string")
+    : Array.isArray(type.roomIds)
+      ? type.roomIds.filter((r) => typeof r === "string")
+      : [];
+
+  const frequency = type.frequency && typeof type.frequency === "object" ? type.frequency : null;
+  const schedule = type.schedule && typeof type.schedule === "object" ? type.schedule : frequency;
+
   return {
-    ...completion,
-    id: typeof completion.id === "string" && completion.id ? completion.id : newId("c"),
-    taskId: typeof completion.taskId === "string" ? completion.taskId : "",
-    doneOn: typeof completion.doneOn === "string" ? completion.doneOn : "",
-    cost: Number.isFinite(completion.cost) ? completion.cost : 0,
-    note: typeof completion.note === "string" ? completion.note : "",
+    ...type,
+    id: typeof type.id === "string" && type.id ? type.id : newId("ft"),
+    name: typeof type.name === "string" ? type.name.trim() : "",
+    rooms,
+    roomIds: rooms,
+    description: typeof type.description === "string" ? type.description : "",
+    frequency: isValidSchedule(schedule) ? schedule : schedule,
+    schedule: isValidSchedule(schedule) ? schedule : schedule,
+    createdAt: isDateString(type.createdAt) ? type.createdAt : todayISO(),
+    active: type.active !== false,
   };
+}
+
+function normalizeLogEntry(entry) {
+  if (!entry || typeof entry !== "object") return null;
+
+  return {
+    ...entry,
+    id: typeof entry.id === "string" && entry.id ? entry.id : newId("lg"),
+    typeId: typeof entry.typeId === "string" ? entry.typeId : "",
+    name: typeof entry.name === "string" ? entry.name : "",
+    rooms: Array.isArray(entry.rooms) ? entry.rooms.filter((r) => typeof r === "string") : [],
+    roomIds: Array.isArray(entry.roomIds) ? entry.roomIds.filter((r) => typeof r === "string") : [],
+    description: typeof entry.description === "string" ? entry.description : "",
+    frequency: entry.frequency && typeof entry.frequency === "object" ? entry.frequency : entry.schedule || null,
+    schedule: entry.schedule && typeof entry.schedule === "object" ? entry.schedule : entry.frequency || null,
+    dueDate: isDateString(entry.dueDate) ? entry.dueDate : (isDateString(entry.dueOn) ? entry.dueOn : ""),
+    done: entry.done === true || entry.completed === true || entry.utført === true,
+    doneDate: isDateString(entry.doneDate)
+      ? entry.doneDate
+      : isDateString(entry.completedOn)
+        ? entry.completedOn
+        : isDateString(entry.doneOn)
+          ? entry.doneOn
+          : "",
+    note: typeof entry.note === "string" ? entry.note : typeof entry.merknad === "string" ? entry.merknad : "",
+    merknad: typeof entry.merknad === "string" ? entry.merknad : typeof entry.note === "string" ? entry.note : "",
+  };
+}
+
+function migrateFromOld(raw) {
+  const data = {
+    schemaVersion: SCHEMA_VERSION,
+    updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : "",
+    areas: Array.isArray(raw.areas) ? raw.areas.map(normalizeArea).filter(Boolean) : [],
+    rooms: Array.isArray(raw.rooms) ? raw.rooms.map(normalizeRoom).filter(Boolean) : [],
+    fdvTaskTypes: [],
+    logEntries: [],
+    tasks: Array.isArray(raw.tasks) ? raw.tasks : [],
+    completions: Array.isArray(raw.completions) ? raw.completions : [],
+  };
+
+  // Forsøk å migrere gamle tasks til fdvTaskTypes hvis ingen nye finnes
+  if (Array.isArray(raw.tasks)) {
+    for (const task of raw.tasks) {
+      if (!task || typeof task !== "object") continue;
+      data.fdvTaskTypes.push(
+        normalizeFdvType({
+          id: task.id,
+          name: task.title,
+          rooms: [],
+          roomIds: [],
+          description: task.notes || "",
+          frequency: task.schedule,
+          schedule: task.schedule,
+          createdAt: task.createdAt || todayISO(),
+          active: task.active !== false,
+        }),
+      );
+    }
+  }
+
+  // Migrer completions til logg-oppgaver
+  if (Array.isArray(raw.completions)) {
+    for (const comp of raw.completions) {
+      if (!comp || typeof comp !== "object") continue;
+      const type = data.fdvTaskTypes.find((t) => t.id === comp.taskId);
+      data.logEntries.push(
+        normalizeLogEntry({
+          id: comp.id || newId("lg"),
+          typeId: comp.taskId,
+          name: type?.name || "",
+          rooms: type?.rooms || type?.roomIds || [],
+          description: type?.description || "",
+          frequency: type?.frequency || type?.schedule || null,
+          schedule: type?.schedule || type?.frequency || null,
+          dueDate: comp.doneOn || "",
+          done: true,
+          doneDate: comp.doneOn || "",
+          note: comp.note || "",
+          merknad: comp.note || "",
+        }),
+      );
+    }
+  }
+
+  return data;
 }
 
 export function normalizeData(raw) {
@@ -66,86 +160,68 @@ export function normalizeData(raw) {
     throw new Error("data.json må inneholde et JSON-objekt.");
   }
 
-  const version = Number.isInteger(raw.schemaVersion) ? raw.schemaVersion : SCHEMA_VERSION;
-  if (version > SCHEMA_VERSION) {
-    throw new Error(
-      `data.json har schemaVersion ${version}, men appen støtter ${SCHEMA_VERSION}. Oppdater appen før du lagrer.`,
-    );
+  const version = Number.isInteger(raw.schemaVersion) ? raw.schemaVersion : 1;
+
+  if (version >= 2 && Array.isArray(raw.fdvTaskTypes)) {
+    const data = {
+      schemaVersion: SCHEMA_VERSION,
+      updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : "",
+      areas: Array.isArray(raw.areas) ? raw.areas.map(normalizeArea).filter(Boolean) : [],
+      rooms: Array.isArray(raw.rooms) ? raw.rooms.map(normalizeRoom).filter(Boolean) : [],
+      fdvTaskTypes: Array.isArray(raw.fdvTaskTypes) ? raw.fdvTaskTypes.map(normalizeFdvType).filter(Boolean) : [],
+      logEntries: Array.isArray(raw.logEntries) ? raw.logEntries.map(normalizeLogEntry).filter(Boolean) : [],
+      tasks: Array.isArray(raw.tasks) ? raw.tasks : [],
+      completions: Array.isArray(raw.completions) ? raw.completions : [],
+    };
+    return data;
   }
 
-  return {
-    ...raw,
-    schemaVersion: SCHEMA_VERSION,
-    updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : "",
-    areas: Array.isArray(raw.areas) ? raw.areas.map(normalizeArea).filter(Boolean) : [],
-    tasks: Array.isArray(raw.tasks) ? raw.tasks.map(normalizeTask).filter(Boolean) : [],
-    completions: Array.isArray(raw.completions)
-      ? raw.completions.map(normalizeCompletion).filter(Boolean)
-      : [],
-  };
+  return migrateFromOld(raw);
 }
 
-export function emptyData() {
-  return {
-    schemaVersion: SCHEMA_VERSION,
-    updatedAt: "",
-    areas: [],
-    tasks: [],
-    completions: [],
-  };
+export function createFdvType({ name, rooms = [], description = "", frequency = null } = {}) {
+  return normalizeFdvType({
+    id: newId("ft"),
+    name: String(name ?? "").trim(),
+    rooms: Array.isArray(rooms) ? rooms.filter((r) => typeof r === "string") : [],
+    description: String(description ?? ""),
+    frequency,
+    schedule: frequency,
+    createdAt: todayISO(),
+    active: true,
+  });
 }
 
-/**
- * Returnerer en liste med norske feilmeldinger. Tom liste betyr gyldig.
- */
-export function validateTask(task) {
+export function createLogEntryFromType(type, { dueDate = "", done = false, note = "" } = {}) {
+  if (!type) return null;
+  const normalized = normalizeFdvType(type);
+  return normalizeLogEntry({
+    id: newId("lg"),
+    typeId: normalized.id,
+    name: normalized.name,
+    rooms: normalized.rooms,
+    roomIds: normalized.rooms,
+    description: normalized.description,
+    frequency: normalized.frequency,
+    schedule: normalized.schedule,
+    dueDate,
+    done,
+    doneDate: done ? dueDate || todayISO() : "",
+    note,
+    merknad: note,
+  });
+}
+
+export function validateFdvType(type) {
   const errors = [];
-
-  if (!task || typeof task !== "object") {
-    return ["Oppgaven mangler data."];
+  if (!type || typeof type !== "object") return ["FDV-oppgavetype mangler data."];
+  if (!String(type.name ?? "").trim()) errors.push("Oppgavenavn må fylles ut.");
+  const schedule = type.frequency || type.schedule;
+  if (schedule && !isValidSchedule(schedule)) {
+    errors.push("Ugyldig «hvor ofte».");
   }
-
-  if (!String(task.title ?? "").trim()) {
-    errors.push("Tittel må fylles ut.");
+  if (!Array.isArray(type.rooms) || type.rooms.length === 0) {
+    errors.push("Velg minst ett rom/område.");
   }
-
-  const schedule = task.schedule;
-  if (
-    !schedule ||
-    typeof schedule !== "object" ||
-    (schedule.type !== "fixed-annual" && schedule.type !== "interval")
-  ) {
-    errors.push("Velg en gyldig plan.");
-    return errors;
-  }
-
-  if (schedule.type === "fixed-annual") {
-    if (!Number.isInteger(schedule.month) || schedule.month < 1 || schedule.month > 12) {
-      errors.push("Måned må være mellom 1 og 12.");
-    } else if (
-      !Number.isInteger(schedule.day) ||
-      schedule.day < 1 ||
-      schedule.day > daysInMonth(2024, schedule.month)
-    ) {
-      errors.push(`Dag må være mellom 1 og ${daysInMonth(2024, schedule.month)} i ${MONTH_NAMES[schedule.month - 1]}.`);
-    }
-  }
-
-  if (schedule.type === "interval") {
-    if (!UNITS.includes(schedule.unit)) {
-      errors.push("Velg en gyldig enhet.");
-    }
-    if (!Number.isInteger(schedule.count) || schedule.count < 1 || schedule.count > 120) {
-      errors.push("Antall må være mellom 1 og 120.");
-    }
-    if (schedule.anchor && !isDateString(schedule.anchor)) {
-      errors.push("Anker må være en gyldig dato.");
-    }
-  }
-
   return errors;
-}
-
-export function findArea(data, areaId) {
-  return data?.areas?.find((area) => area.id === areaId) ?? null;
 }

@@ -3,15 +3,15 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Villa Wisløff – Vedlikeholdsweb</title>
-    <meta name="description" content="Vedlikeholdsoversikt for Villa Wisløff." />
+    <title>Villa Wisløff – FDV</title>
+    <meta name="description" content="FDV-oppgavetyper og logg." />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <header class="site-header">
       <div>
         <h1>Villa Wisløff</h1>
-        <p class="subtitle">Vedlikeholdsoversikt</p>
+        <p class="subtitle">FDV-oppgavetyper og Logg</p>
       </div>
       <div class="header-actions">
         <div class="status-pill">
@@ -25,167 +25,199 @@
     <main>
       <div class="topbar">
         <div class="tabs">
-          <button class="tab active" data-tab="oppgaver">Oppgaver</button>
-          <button class="tab" data-tab="omrader">Områder</button>
+          <button class="tab active" data-tab="typer">FDV-oppgavetyper</button>
+          <button class="tab" data-tab="logg">Logg-oppgaver</button>
           <button class="tab" data-tab="innstillinger">Innstillinger</button>
         </div>
-        <button type="button" id="newTaskBtn" class="primary">Ny oppgave</button>
+        <div class="actions" style="margin: 0">
+          <button type="button" id="newTypeBtn" class="primary">Ny FDV-oppgavetype</button>
+          <button type="button" id="createLogFromTypeBtn">Opprett loggoppgave fra type</button>
+        </div>
       </div>
 
-      <!-- OPPGAVER -->
-      <section class="tab-panel" data-panel="oppgaver">
-        <div class="layout">
-          <section class="card">
-            <div class="card-head">
-              <div>
-                <h2>Kommende oppgaver</h2>
-                <p>Sortert etter neste forfall</p>
-              </div>
-              <span class="muted" id="taskCount">0 oppgaver</span>
-            </div>
-            <div id="taskList" class="task-list"></div>
-            <div id="taskEmpty" class="empty-state" hidden>
-              Ingen oppgaver ennå. Trykk «Ny oppgave» for å legge til den første.
-            </div>
-          </section>
-
-          <section class="card">
-            <div class="card-head">
-              <div>
-                <h2 id="editorTitle">Velg en oppgave</h2>
-                <p id="editorSubtitle">Klikk på en oppgave i listen for å vise og redigere den</p>
-              </div>
-              <span id="dirtyBadge" class="pill" hidden>Ulagrede endringer</span>
-            </div>
-
-            <form id="taskForm" autocomplete="off">
-              <input type="hidden" id="taskId" />
-
-              <div class="grid-two">
-                <label>
-                  Tittel
-                  <input id="taskTitle" type="text" placeholder="F.eks. Stenge utekrana" required />
-                </label>
-                <label>
-                  Område
-                  <select id="taskArea">
-                    <option value="">Ingen område</option>
-                  </select>
-                </label>
-              </div>
-
-              <label>
-                Notater
-                <textarea id="taskNotes" placeholder="Kort beskrivelse eller huskelapp"></textarea>
-              </label>
-
-              <div class="grid-two">
-                <label>
-                  Aktiv
-                  <select id="taskActive">
-                    <option value="true">Ja</option>
-                    <option value="false">Nei (skjult fra listen)</option>
-                  </select>
-                </label>
-                <label>
-                  Opprettet
-                  <input id="taskCreatedAt" type="date" />
-                </label>
-              </div>
-
-              <hr style="border: none; border-top: 1px solid var(--border); margin: 1.25rem 0" />
-
-              <div class="card-head" style="margin-bottom: 0.8rem">
-                <div>
-                  <h3 style="margin: 0; font-size: 1rem">Plan for gjentakelse</h3>
-                  <p class="muted">Velg hvordan oppgaven skal gjentas</p>
-                </div>
-              </div>
-
-              <div class="segmented" role="tablist" aria-label="Planetype">
-                <button type="button" class="active" data-schedule="fixed-annual">Fast årlig dato</button>
-                <button type="button" data-schedule="interval">Intervall</button>
-              </div>
-
-              <!-- Fast årlig -->
-              <div id="panelFixed" class="schedule-panel">
-                <div class="grid-two">
-                  <label>
-                    Måned
-                    <select id="fixedMonth"></select>
-                  </label>
-                  <label>
-                    Dag
-                    <select id="fixedDay"></select>
-                  </label>
-                </div>
-                <p class="muted">Neste gang beregnes automatisk. 29. februar klemmes til 28. februar i ikke-skuddår.</p>
-              </div>
-
-              <!-- Intervall -->
-              <div id="panelInterval" class="schedule-panel" hidden>
-                <div class="field-row">
-                  <label style="flex: 0 0 8rem">
-                    Hver
-                    <input id="intervalCount" type="number" min="1" max="120" value="1" />
-                  </label>
-                  <label>
-                    Enhet
-                    <select id="intervalUnit">
-                      <option value="day">dag(er)</option>
-                      <option value="week">uke(r)</option>
-                      <option value="month" selected>måned(er)</option>
-                      <option value="year">år</option>
-                    </select>
-                  </label>
-                </div>
-                <label>
-                  Ankerdato (brukes hvis det aldri er fullført)
-                  <input id="intervalAnchor" type="date" />
-                </label>
-                <p class="muted">Regnes fra siste fullføring. Hvis ingen fullføring, brukes anker eller opprettelsesdato.</p>
-              </div>
-
-              <p id="schedulePreview" class="muted" style="margin-top: 0.9rem"></p>
-
-              <div class="actions">
-                <button type="submit" class="primary">Lagre endringer til GitHub</button>
-                <button type="button" id="cancelEditBtn">Avbryt</button>
-                <button type="button" id="deleteTaskBtn" class="ghost">Deaktiver oppgave</button>
-              </div>
-              <p id="taskFormError" class="pill forfalt" hidden></p>
-            </form>
-
-            <div id="noTaskSelected" class="empty-state">
-              Ingen oppgave valgt. Velg en oppgave fra listen, eller opprett en ny.
-            </div>
-          </section>
-        </div>
-      </section>
-
-      <!-- OMRÅDER -->
-      <section class="tab-panel" data-panel="omrader" hidden>
+      <!-- TYPER -->
+      <section class="tab-panel" data-panel="typer">
         <section class="card">
           <div class="card-head">
             <div>
-              <h2>Områder</h2>
-              <p>Grupper oppgaver etter område</p>
+              <h2>FDV-oppgavetyper</h2>
+              <p>Liste over vedlikeholdsoppgavetyper. Standard sortering: Rom → Oppgavenavn</p>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <div class="filter-group">
+              <button class="filter-chip active" data-filter="alle">Alle</button>
+              <span class="muted">Filtrer etter rom:</span>
+              <div id="roomFilter" class="filter-group"></div>
+            </div>
+            <div class="muted">Klikk på en rad for å redigere egenskapene</div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="table" id="typeTable">
+              <thead>
+                <tr>
+                  <th class="sortable" data-sort="rooms">Rom</th>
+                  <th class="sortable" data-sort="name">Oppgavenavn</th>
+                  <th class="sortable" data-sort="frequency">Hvor ofte</th>
+                  <th>Beskrivelse</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div id="typeEmpty" class="empty-state" hidden>Ingen FDV-oppgavetyper ennå.</div>
+        </section>
+
+        <section class="card" id="typeEditor" hidden>
+          <div class="card-head">
+            <div>
+              <h2 id="typeEditorTitle">Rediger FDV-oppgavetype</h2>
+              <p>Oppgavenavn, OppgaveOmråde/rom, Hvor ofte, Beskrivelse</p>
+            </div>
+          </div>
+
+          <form id="typeForm" autocomplete="off">
+            <input type="hidden" id="typeId" />
+            <div class="grid-two">
+              <label>
+                Oppgavenavn
+                <input id="typeName" type="text" required />
+              </label>
+              <label>
+                Opprettet
+                <input id="typeCreatedAt" type="date" />
+              </label>
+            </div>
+
+            <div>
+              <label>Rom / område</label>
+              <div class="chip-row" id="typeRoomChips"></div>
+              <div class="field-row">
+                <select id="typeRoomSelect"></select>
+                <button type="button" id="addTypeRoomBtn">Legg til rom</button>
+              </div>
+            </div>
+
+            <label style="margin-top: 0.9rem">Beskrivelse</label>
+            <textarea id="typeDescription" placeholder="Beskrivelse av oppgaven"></textarea>
+
+            <hr style="border: none; border-top: 1px solid var(--border); margin: 1.25rem 0" />
+
+            <div class="card-head" style="margin-bottom: 0.8rem">
+              <div>
+                <h3 style="margin: 0; font-size: 1rem">Hvor ofte</h3>
+                <p class="muted">Fast årlig dato eller intervall</p>
+              </div>
+            </div>
+
+            <div class="segmented">
+              <button type="button" class="active" data-type-schedule="fixed-annual">Fast årlig dato</button>
+              <button type="button" data-type-schedule="interval">Intervall</button>
+            </div>
+
+            <div id="typePanelFixed">
+              <div class="grid-two">
+                <label>
+                  Måned
+                  <select id="typeFixedMonth"></select>
+                </label>
+                <label>
+                  Dag
+                  <select id="typeFixedDay"></select>
+                </label>
+              </div>
+            </div>
+
+            <div id="typePanelInterval" hidden>
+              <div class="field-row">
+                <label style="flex: 0 0 8rem">
+                  Hver
+                  <input id="typeIntervalCount" type="number" min="1" max="120" value="1" />
+                </label>
+                <label>
+                  Enhet
+                  <select id="typeIntervalUnit">
+                    <option value="day">dag(er)</option>
+                    <option value="week">uke(r)</option>
+                    <option value="month" selected>måned(er)</option>
+                    <option value="year">år</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <p id="typeFreqPreview" class="muted"></p>
+
+            <div class="actions">
+              <button type="submit" class="primary">Lagre FDV-oppgavetype</button>
+              <button type="button" id="cancelTypeBtn">Avbryt</button>
+            </div>
+            <p id="typeFormError" class="pill forfalt" hidden></p>
+          </form>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h2>Rom / områder</h2>
+              <p>Brukes til å filtrere og sortere på Rom</p>
             </div>
           </div>
           <div class="field-row">
             <label class="grow">
-              Nytt område
-              <input id="areaInput" type="text" placeholder="F.eks. Bad, Ute, Kjeller" />
+              Nytt rom
+              <input id="roomInput" type="text" placeholder="F.eks. Bad, Stue, Ute" />
             </label>
-            <button type="button" id="addAreaBtn" style="align-self: flex-end">Legg til område</button>
+            <button type="button" id="addRoomBtn" style="align-self: flex-end">Legg til rom</button>
           </div>
-          <div id="areaList" class="checklist"></div>
+          <div id="roomList" class="chip-row"></div>
+        </section>
+      </section>
+
+      <!-- LOGG -->
+      <section class="tab-panel" data-panel="logg" hidden>
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h2>Logg-oppgaver</h2>
+              <p>Viser både oppgaver som skal gjøres og utførte oppgaver</p>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <div class="filter-group">
+              <button class="filter-chip active" data-log-filter="alle">Alle</button>
+              <button class="filter-chip" data-log-filter="aapne">Ikke utført</button>
+              <button class="filter-chip" data-log-filter="utført">Utført</button>
+              <button class="filter-chip" data-log-filter="forfalt">Forfalt</button>
+            </div>
+            <div class="muted">Rediger Dato for frist, Check (Utført) og Merknad direkte i tabellen</div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="table" id="logTable">
+              <thead>
+                <tr>
+                  <th>Rom</th>
+                  <th>Oppgavenavn</th>
+                  <th>Hvor ofte</th>
+                  <th>Dato for frist</th>
+                  <th>Utført</th>
+                  <th>Merknad</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div id="logEmpty" class="empty-state" hidden>Ingen loggoppgaver ennå.</div>
         </section>
       </section>
 
       <!-- INNSTILLINGER -->
       <section class="tab-panel" data-panel="innstillinger" hidden>
-        <div class="layout">
+        <div class="grid-two">
           <section class="card">
             <div class="card-head">
               <div>
@@ -197,17 +229,17 @@
               <div class="grid-two">
                 <label>
                   Eier
-                  <input id="setOwner" type="text" placeholder="SverreWisloff" required />
+                  <input id="setOwner" type="text" required />
                 </label>
                 <label>
                   Repo
-                  <input id="setRepo" type="text" placeholder="VW-FDV" required />
+                  <input id="setRepo" type="text" required />
                 </label>
               </div>
               <div class="grid-two">
                 <label>
                   Branch
-                  <input id="setBranch" type="text" placeholder="main" />
+                  <input id="setBranch" type="text" />
                 </label>
                 <label>
                   Fil
@@ -216,7 +248,7 @@
               </div>
               <label>
                 Fine-grained PAT (Contents: Read and write)
-                <input id="setToken" type="password" placeholder="github_pat_…" autocomplete="off" />
+                <input id="setToken" type="password" autocomplete="off" />
               </label>
               <p id="tokenInfo" class="muted"></p>
               <div class="actions">
@@ -225,7 +257,6 @@
               </div>
             </form>
           </section>
-
           <section class="card">
             <div class="card-head">
               <div>

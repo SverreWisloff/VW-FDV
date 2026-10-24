@@ -49,7 +49,7 @@ body {
 .site-header,
 main,
 footer {
-  max-width: 68rem;
+  max-width: 76rem;
   margin: 0 auto;
   padding: 0 1rem;
 }
@@ -131,19 +131,6 @@ footer {
   padding: 0.1rem 0.4rem;
 }
 
-.layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-  gap: 1rem;
-  align-items: start;
-}
-
-@media (max-width: 980px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
-}
-
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -170,81 +157,89 @@ footer {
   color: var(--muted);
 }
 
-.task-list {
+.toolbar {
   display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.task-item {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 0.9rem;
+  flex-wrap: wrap;
   align-items: center;
-  padding: 0.8rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  text-align: left;
-  background: var(--surface);
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
 }
 
-.task-item:hover:not(:disabled) {
-  border-color: var(--accent);
-}
-
-.task-item.active {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
-}
-
-.task-main {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.task-title {
-  font-weight: 600;
-}
-
-.task-meta {
+.filter-group {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-  color: var(--muted);
-  font-size: 0.9rem;
 }
 
-.dot::before {
-  content: "·";
-  margin: 0 0.25rem;
-}
-
-.pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.15rem 0.55rem;
-  border-radius: 999px;
+.filter-chip {
   border: 1px solid var(--border);
-  font-size: 0.85rem;
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
 }
 
-.pill.forfalt {
-  color: var(--overdue);
-  border-color: color-mix(in srgb, var(--overdue) 40%, var(--border));
+.filter-chip.active {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-color: var(--accent);
 }
 
-.pill.snart {
-  color: var(--soon);
-  border-color: color-mix(in srgb, var(--soon) 40%, var(--border));
+.table-wrap {
+  overflow-x: auto;
 }
 
-.pill.ok {
-  color: var(--ok);
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
 }
 
-.pill.ukjent {
+.table th {
+  text-align: left;
+  font-size: 0.9rem;
   color: var(--muted);
+  font-weight: 600;
+  padding: 0.5rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.table th.sortable {
+  cursor: pointer;
+}
+
+.table th.sortable:hover {
+  color: var(--text);
+}
+
+.table td {
+  padding: 0.6rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.table tr.clickable {
+  cursor: pointer;
+}
+
+.table tr.clickable:hover {
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.table tr.selected {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.table input[type="text"],
+.table input[type="date"],
+.table select {
+  margin-top: 0;
+}
+
+.inline-check {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .muted {
@@ -257,7 +252,7 @@ footer {
   gap: 0.8rem;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 780px) {
   .grid-two {
     grid-template-columns: 1fr;
   }
@@ -291,8 +286,13 @@ textarea {
 }
 
 textarea {
-  min-height: 5rem;
+  min-height: 4.5rem;
   resize: vertical;
+}
+
+input[type="checkbox"] {
+  width: auto;
+  margin-top: 0;
 }
 
 input:focus-visible,
@@ -306,10 +306,11 @@ button:focus-visible {
 .field-row {
   display: flex;
   gap: 0.6rem;
+  flex-wrap: wrap;
 }
 
 .field-row > * {
-  flex: 1;
+  flex: 1 1 14rem;
 }
 
 .segmented {
@@ -321,6 +322,7 @@ button:focus-visible {
   border: 1px solid var(--border);
   background: var(--bg);
   margin-top: 0.25rem;
+  max-width: 28rem;
 }
 
 .segmented button {
@@ -371,20 +373,53 @@ button:disabled {
   cursor: default;
 }
 
-.checklist {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.8rem;
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
 }
 
-.check {
+.pill.forfalt {
+  color: var(--overdue);
+  border-color: color-mix(in srgb, var(--overdue) 40%, var(--border));
+}
+
+.pill.snart {
+  color: var(--soon);
+  border-color: color-mix(in srgb, var(--soon) 40%, var(--border));
+}
+
+.pill.ok {
+  color: var(--ok);
+}
+
+.pill.ukjent {
+  color: var(--muted);
+}
+
+.chip-row {
   display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+
+.chip {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.6rem 0.8rem;
+  gap: 0.4rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+}
+
+.chip button {
+  border: 0;
+  background: transparent;
+  padding: 0 0.2rem;
 }
 
 .empty-state {
