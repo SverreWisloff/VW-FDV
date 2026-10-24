@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-10-24T19:49:42.627Z",
+  "updatedAt": "2026-10-24T22:13:06.775Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -173,6 +173,29 @@
         "type": "fixed-annual",
         "month": 9,
         "day": 15
+      },
+      "createdAt": "2026-10-24",
+      "active": true
+    },
+    {
+      "id": "ftbed93c507c",
+      "name": "Epler til Egge",
+      "rooms": [
+        "r74c5e74b8c"
+      ],
+      "roomIds": [
+        "r74c5e74b8c"
+      ],
+      "description": "",
+      "frequency": {
+        "type": "fixed-annual",
+        "month": 9,
+        "day": 18
+      },
+      "schedule": {
+        "type": "fixed-annual",
+        "month": 9,
+        "day": 18
       },
       "createdAt": "2026-10-24",
       "active": true
