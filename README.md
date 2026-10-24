@@ -6,6 +6,8 @@ læringsprosjekt i [OpenCode](https://opencode.ai).
 Appen og dataene bor i ett offentlig GitHub-repo og kjøres fra GitHub Pages.
 GitHub er databasen: `data.json` leses og skrives med GitHub Contents API.
 
+Repo: <https://github.com/SverreWisloff/VW-FDV>
+
 Full plan: [`docs/plans/2026-10-24-villa-wisloeff-vedlikehold.md`](docs/plans/2026-10-24-villa-wisloeff-vedlikehold.md).
 
 ## Status
