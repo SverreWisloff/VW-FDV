@@ -312,9 +312,9 @@ function renderLog() {
     const ad = a.done ? 1 : 0;
     const bd = b.done ? 1 : 0;
     if (ad !== bd) return ad - bd;
-    if (a.dueDate && b.dueDate) return a.dueDate.localeCompare(b.dueDate);
-    if (a.dueDate) return -1;
-    if (b.dueDate) return 1;
+    if (isDateString(a.dueDate) && isDateString(b.dueDate)) return a.dueDate.localeCompare(b.dueDate);
+    if (isDateString(a.dueDate)) return -1;
+    if (isDateString(b.dueDate)) return 1;
     return (a.name || "").localeCompare(b.name || "", "nb");
   });
 
@@ -390,11 +390,17 @@ function renderLog() {
 
 function addMonthsISO(dateStr, months) {
   const d = new Date(dateStr + "T00:00:00");
+  const day = d.getDate();
   d.setMonth(d.getMonth() + months);
+  // Hvis dagen ikke finnes i ny måned (f.eks 31. mars + 1 mnd = 31. mai? nei, setMonth kan rulle)
+  // Bedre å bruke samme logikk som addMonths i dates.js
+  if (d.getDate() !== day) {
+    d.setDate(0); // siste dag i forrige måned
+  }
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${dd}`;
 }
 
 function ensureUpcomingLogEntries() {
@@ -402,38 +408,47 @@ function ensureUpcomingLogEntries() {
   state.data.logEntries = Array.isArray(state.data.logEntries) ? state.data.logEntries : [];
   const types = Array.isArray(state.data.fdvTaskTypes) ? state.data.fdvTaskTypes.filter((t) => t.active !== false) : [];
   const endDate = addMonthsISO(state.today, 3);
+  if (!isDateString(endDate)) return false;
   let changed = false;
 
   for (const type of types) {
     const schedule = type.frequency || type.schedule;
-    if (!schedule) continue;
+    if (!schedule || typeof schedule !== "object") continue;
 
     // Find existing entries for this type (by typeId) - avoid duplicates for same due date
     const existingDueDates = new Set(
       state.data.logEntries
-        .filter((e) => e.typeId === type.id && isDateString(e.dueDate))
+        .filter((e) => e && e.typeId === type.id && isDateString(e.dueDate))
         .map((e) => e.dueDate),
     );
 
-    // For fixed annual, check this year's occurrence if within 3 months
+    // For fixed annual, check occurrence if within 3 months
     if (schedule.type === "fixed-annual") {
-      const candidate = computeDueDate(schedule, { from: state.today });
-      if (isDateString(candidate) && candidate <= endDate && !existingDueDates.has(candidate)) {
-        const entry = createLogEntryFromType(type, { dueDate: candidate });
-        if (entry) {
-          state.data.logEntries.push(entry);
-          changed = true;
+      try {
+        const candidate = computeDueDate(schedule, { from: state.today });
+        if (isDateString(candidate) && candidate <= endDate && !existingDueDates.has(candidate)) {
+          const entry = createLogEntryFromType(type, { dueDate: candidate });
+          if (entry) {
+            state.data.logEntries.push(entry);
+            changed = true;
+          }
         }
+      } catch (e) {
+        console.error("Feil ved generering av oppgave for", type.id, e);
       }
     } else if (schedule.type === "interval") {
       // Generate next occurrence if it's within 3 months and not already present
-      const candidate = computeDueDate(schedule, { anchor: type.createdAt || state.today, from: state.today });
-      if (isDateString(candidate) && candidate <= endDate && !existingDueDates.has(candidate)) {
-        const entry = createLogEntryFromType(type, { dueDate: candidate });
-        if (entry) {
-          state.data.logEntries.push(entry);
-          changed = true;
+      try {
+        const candidate = computeDueDate(schedule, { anchor: type.createdAt || state.today, from: state.today });
+        if (isDateString(candidate) && candidate <= endDate && !existingDueDates.has(candidate)) {
+          const entry = createLogEntryFromType(type, { dueDate: candidate });
+          if (entry) {
+            state.data.logEntries.push(entry);
+            changed = true;
+          }
         }
+      } catch (e) {
+        console.error("Feil ved generering av oppgave for", type.id, e);
       }
     }
   }

@@ -90,7 +90,9 @@ function normalizeLogEntry(entry) {
         ? entry.completedOn
         : isDateString(entry.doneOn)
           ? entry.doneOn
-          : "",
+          : isDateString(entry.utførtDato)
+            ? entry.utførtDato
+            : "",
     note: typeof entry.note === "string" ? entry.note : typeof entry.merknad === "string" ? entry.merknad : "",
     merknad: typeof entry.merknad === "string" ? entry.merknad : typeof entry.note === "string" ? entry.note : "",
   };
