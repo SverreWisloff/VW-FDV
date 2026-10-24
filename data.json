@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-10-24T19:05:28.456Z",
+  "updatedAt": "2026-10-24T19:05:43.850Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -150,6 +150,33 @@
         "unit": "month"
       },
       "dueDate": "2026-11-24",
+      "done": false,
+      "doneDate": "",
+      "note": "",
+      "merknad": ""
+    },
+    {
+      "id": "lge26630efaf",
+      "typeId": "t746dc27fb",
+      "name": "Rense taknedløpet høst",
+      "rooms": [
+        "r424ae55daf"
+      ],
+      "roomIds": [
+        "r424ae55daf"
+      ],
+      "description": "",
+      "frequency": {
+        "type": "fixed-annual",
+        "month": 11,
+        "day": 1
+      },
+      "schedule": {
+        "type": "fixed-annual",
+        "month": 11,
+        "day": 1
+      },
+      "dueDate": "2026-11-01",
       "done": false,
       "doneDate": "",
       "note": "",
