@@ -1,7 +1,12 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-24T00:00:00Z",
-  "areas": [],
+  "updatedAt": "2026-10-24T16:53:54.481Z",
+  "areas": [
+    {
+      "id": "a247ebdbc",
+      "name": "Maurmiddel"
+    }
+  ],
   "tasks": [],
   "completions": []
 }
