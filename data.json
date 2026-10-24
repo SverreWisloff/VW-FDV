@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-24T17:30:50.763Z",
+  "updatedAt": "2026-10-24T17:31:15.306Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -13,6 +13,10 @@
     {
       "id": "a48d74b7a9",
       "name": "Ute"
+    },
+    {
+      "id": "ae8c428ca9",
+      "name": "Bad-Gjeste"
     }
   ],
   "tasks": [],
