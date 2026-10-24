@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-24T17:31:52.753Z",
+  "updatedAt": "2026-10-24T17:32:57.083Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -39,6 +39,20 @@
       "name": "Tak"
     }
   ],
-  "tasks": [],
+  "tasks": [
+    {
+      "id": "td7dd6a9cc",
+      "title": "Stenge utekrana",
+      "areaId": "a48d74b7a9",
+      "notes": "Ta inn slange, stenge krana i kjeller",
+      "active": true,
+      "createdAt": "2026-10-24",
+      "schedule": {
+        "type": "fixed-annual",
+        "month": 10,
+        "day": 1
+      }
+    }
+  ],
   "completions": []
 }
