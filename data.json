@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-10-24T19:48:55.341Z",
+  "updatedAt": "2026-10-24T19:49:42.627Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -156,7 +156,7 @@
     },
     {
       "id": "ft037a6f7470",
-      "name": "Ta inn utemøbler og grill",
+      "name": "Ta inn utemøbler, grill og Robert",
       "rooms": [
         "r74c5e74b8c"
       ],
