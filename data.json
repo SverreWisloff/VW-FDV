@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-10-24T19:03:03.929Z",
+  "updatedAt": "2026-10-24T19:03:52.217Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -79,20 +79,22 @@
     {
       "id": "t47a43d3c3",
       "name": "Resne sluket",
-      "rooms": [],
-      "roomIds": [],
+      "rooms": [
+        "reac2ad84ae"
+      ],
+      "roomIds": [
+        "reac2ad84ae"
+      ],
       "description": "",
       "frequency": {
         "type": "interval",
         "count": 1,
-        "unit": "month",
-        "anchor": "2026-10-24"
+        "unit": "month"
       },
       "schedule": {
         "type": "interval",
         "count": 1,
-        "unit": "month",
-        "anchor": "2026-10-24"
+        "unit": "month"
       },
       "createdAt": "2026-10-24",
       "active": true
