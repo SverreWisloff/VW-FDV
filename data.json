@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-10-24T19:06:36.550Z",
+  "updatedAt": "2026-10-24T19:39:42.831Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -53,6 +53,11 @@
     {
       "id": "r74c5e74b8c",
       "name": "Ute",
+      "areaId": ""
+    },
+    {
+      "id": "r6c033afc2b",
+      "name": "Bad-Toril",
       "areaId": ""
     }
   ],
