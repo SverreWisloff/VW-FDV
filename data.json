@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-24T17:31:40.689Z",
+  "updatedAt": "2026-10-24T17:31:48.119Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -29,6 +29,10 @@
     {
       "id": "a1c2686d13",
       "name": "Kjøkken"
+    },
+    {
+      "id": "aaca338ff3",
+      "name": "Carport"
     }
   ],
   "tasks": [],
