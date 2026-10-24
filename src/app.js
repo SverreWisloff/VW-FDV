@@ -8,18 +8,16 @@ import {
   saveConfig,
   saveToken,
 } from "./github.js";
-import { describeFrequency, computeDueDate, getDueInfo } from "./schedule.js";
-import { MONTH_NAMES, daysInMonth, isDateString, todayISO } from "./dates.js";
+import { describeFrequency, computeDueDate } from "./schedule.js";
+import { MONTH_NAMES, daysInMonth, isDateString, todayISO, addUnits } from "./dates.js";
 import { createFdvType, createLogEntryFromType, emptyData, newId, normalizeData, validateFdvType } from "./model.js";
 
 const els = {
   repoStatus: document.querySelector("#repoStatus"),
   reloadAllBtn: document.querySelector("#reloadAllBtn"),
-  settingsBtn: document.querySelector("#settingsBtn"),
   tabs: document.querySelectorAll(".tab"),
   panels: document.querySelectorAll(".tab-panel"),
   newTypeBtn: document.querySelector("#newTypeBtn"),
-  createLogFromTypeBtn: document.querySelector("#createLogFromTypeBtn"),
   typeTableBody: document.querySelector("#typeTable tbody"),
   typeEmpty: document.querySelector("#typeEmpty"),
   typeEditor: document.querySelector("#typeEditor"),
@@ -297,13 +295,17 @@ function newType() {
   els.typeName.focus();
 }
 
+function isOverdue(entry, today) {
+  return !entry.done && isDateString(entry.dueDate) && entry.dueDate < today;
+}
+
 function renderLog() {
   if (!state.data) return;
   let entries = [...(state.data.logEntries ?? [])];
   if (state.logFilter === "aapne") entries = entries.filter((e) => !e.done);
   if (state.logFilter === "utført") entries = entries.filter((e) => e.done);
   if (state.logFilter === "forfalt") {
-    entries = entries.filter((e) => !e.done && isDateString(e.dueDate) && e.dueDate < state.today);
+    entries = entries.filter((e) => isOverdue(e, state.today));
   }
 
   entries.sort((a, b) => {
@@ -320,10 +322,21 @@ function renderLog() {
   els.logEmpty.hidden = entries.length > 0;
   for (const entry of entries) {
     const tr = document.createElement("tr");
+    if (isOverdue(entry, state.today)) {
+      tr.classList.add("overdue-row");
+    }
     const roomsCell = document.createElement("td");
     roomsCell.textContent = (entry.rooms || entry.roomIds || []).map(roomName).join(", ");
     const nameCell = document.createElement("td");
-    nameCell.textContent = entry.name || "";
+    if (isOverdue(entry, state.today)) {
+      const icon = document.createElement("span");
+      icon.className = "overdue-icon";
+      icon.textContent = "⚠";
+      icon.title = "Forfalt";
+      nameCell.append(icon, document.createTextNode(" " + (entry.name || "")));
+    } else {
+      nameCell.textContent = entry.name || "";
+    }
     const freqCell = document.createElement("td");
     freqCell.className = "muted";
     freqCell.textContent = describeFrequency(entry.frequency || entry.schedule);
@@ -336,6 +349,7 @@ function renderLog() {
       entry.dueDate = dueInput.value;
       if (entry.done && !entry.doneDate) entry.doneDate = dueInput.value || state.today;
       markLogChanged(entry);
+      renderLog();
     });
     dueCell.append(dueInput);
 
@@ -374,6 +388,58 @@ function renderLog() {
   }
 }
 
+function addMonthsISO(dateStr, months) {
+  const d = new Date(dateStr + "T00:00:00");
+  d.setMonth(d.getMonth() + months);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function ensureUpcomingLogEntries() {
+  if (!state.data) return false;
+  state.data.logEntries = Array.isArray(state.data.logEntries) ? state.data.logEntries : [];
+  const types = Array.isArray(state.data.fdvTaskTypes) ? state.data.fdvTaskTypes.filter((t) => t.active !== false) : [];
+  const endDate = addMonthsISO(state.today, 3);
+  let changed = false;
+
+  for (const type of types) {
+    const schedule = type.frequency || type.schedule;
+    if (!schedule) continue;
+
+    // Find existing entries for this type (by typeId) - avoid duplicates for same due date
+    const existingDueDates = new Set(
+      state.data.logEntries
+        .filter((e) => e.typeId === type.id && isDateString(e.dueDate))
+        .map((e) => e.dueDate),
+    );
+
+    // For fixed annual, check this year's occurrence if within 3 months
+    if (schedule.type === "fixed-annual") {
+      const candidate = computeDueDate(schedule, { from: state.today });
+      if (isDateString(candidate) && candidate <= endDate && !existingDueDates.has(candidate)) {
+        const entry = createLogEntryFromType(type, { dueDate: candidate });
+        if (entry) {
+          state.data.logEntries.push(entry);
+          changed = true;
+        }
+      }
+    } else if (schedule.type === "interval") {
+      // Generate next occurrence if it's within 3 months and not already present
+      const candidate = computeDueDate(schedule, { anchor: type.createdAt || state.today, from: state.today });
+      if (isDateString(candidate) && candidate <= endDate && !existingDueDates.has(candidate)) {
+        const entry = createLogEntryFromType(type, { dueDate: candidate });
+        if (entry) {
+          state.data.logEntries.push(entry);
+          changed = true;
+        }
+      }
+    }
+  }
+  return changed;
+}
+
 function markLogChanged(entry) {
   state.data.logEntries = Array.isArray(state.data.logEntries) ? state.data.logEntries : [];
   const idx = state.data.logEntries.findIndex((e) => e.id === entry.id);
@@ -407,11 +473,16 @@ async function loadFromGitHub() {
     const { data, sha } = await client.readData();
     state.data = normalizeData(data ?? emptyData());
     state.sha = sha;
+    const generated = ensureUpcomingLogEntries();
     renderRooms();
     renderTypes();
     renderLog();
     updateRepoStatus();
     log(`Lastet data.json (schema v${state.data.schemaVersion}) sha ${sha.slice(0, 7)}.`, "ok");
+    if (generated && hasToken()) {
+      saveData("Automatisk opprettet oppgaver de neste 3 månedene");
+    }
+    showTab("oppgaver");
   } catch (error) {
     if (error instanceof GitHubError) log(error.message, "error");
     else {
@@ -454,27 +525,7 @@ async function saveData(message) {
 
 els.tabs.forEach((tab) => tab.addEventListener("click", () => showTab(tab.dataset.tab)));
 els.reloadAllBtn.addEventListener("click", () => loadFromGitHub());
-els.settingsBtn.addEventListener("click", () => showTab("innstillinger"));
 els.newTypeBtn.addEventListener("click", newType);
-els.createLogFromTypeBtn.addEventListener("click", () => {
-  if (!state.selectedTypeId) {
-    log("Velg en oppgavetype først.", "warn");
-    showTab("typer");
-    return;
-  }
-  const type = state.data?.fdvTaskTypes?.find((t) => t.id === state.selectedTypeId);
-  if (!type) return;
-  state.data.logEntries = Array.isArray(state.data.logEntries) ? state.data.logEntries : [];
-  const schedule = type.frequency || type.schedule;
-  const dueDate = computeDueDate(schedule, { from: state.today });
-  const entry = createLogEntryFromType(type, { dueDate });
-  if (entry) {
-    state.data.logEntries.push(entry);
-    renderLog();
-    saveData(`Opprett oppgave fra ${type.name}`);
-    showTab("oppgaver");
-  }
-});
 
 els.typeScheduleBtns.forEach((btn) => btn.addEventListener("click", () => { state.typeSchedule = btn.dataset.typeSchedule; syncTypeScheduleUI(); }));
 els.typeFixedMonth.addEventListener("change", () => { populateDays(Number(els.typeFixedMonth.value)); syncTypeScheduleUI(); });
@@ -563,7 +614,7 @@ els.settingsForm.addEventListener("submit", (event) => {
   updateTokenInfo();
   log("Innstillinger lagret.", "ok");
   loadFromGitHub();
-  showTab("typer");
+  showTab("oppgaver");
 });
 
 els.clearTokenBtn.addEventListener("click", () => { clearToken(); updateTokenInfo(); log("Token slettet.", "ok"); });
@@ -581,4 +632,6 @@ els.setBranch.value = cfg.branch;
 updateTokenInfo();
 updateRepoStatus();
 if (cfg.owner && cfg.repo) loadFromGitHub();
-else showTab("innstillinger");
+else {
+  showTab("oppgaver");
+}

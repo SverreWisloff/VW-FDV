@@ -230,6 +230,15 @@ footer {
   background: color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
+.table tr.overdue-row {
+  background: color-mix(in srgb, var(--overdue) 6%, transparent);
+}
+
+.overdue-icon {
+  color: var(--overdue);
+  font-weight: 700;
+}
+
 .table input[type="text"],
 .table input[type="date"],
 .table select {
