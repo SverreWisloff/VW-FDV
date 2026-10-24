@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-10-24T22:13:06.775Z",
+  "updatedAt": "2026-10-24T22:14:27.092Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -196,6 +196,29 @@
         "type": "fixed-annual",
         "month": 9,
         "day": 18
+      },
+      "createdAt": "2026-10-24",
+      "active": true
+    },
+    {
+      "id": "ft3d7fd781c3",
+      "name": "Klippe epletrær",
+      "rooms": [
+        "r74c5e74b8c"
+      ],
+      "roomIds": [
+        "r74c5e74b8c"
+      ],
+      "description": "",
+      "frequency": {
+        "type": "fixed-annual",
+        "month": 10,
+        "day": 26
+      },
+      "schedule": {
+        "type": "fixed-annual",
+        "month": 10,
+        "day": 26
       },
       "createdAt": "2026-10-24",
       "active": true
