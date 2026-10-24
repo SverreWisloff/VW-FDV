@@ -1,10 +1,14 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-24T16:53:54.481Z",
+  "updatedAt": "2026-10-24T17:05:32.242Z",
   "areas": [
     {
       "id": "a247ebdbc",
       "name": "Maurmiddel"
+    },
+    {
+      "id": "a69873dc9",
+      "name": "Rense sluket på badet"
     }
   ],
   "tasks": [],
