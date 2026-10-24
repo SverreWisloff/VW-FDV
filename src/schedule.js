@@ -1,9 +1,30 @@
 // Hjelpere for hyppighet og fristberegning
 
 import { addUnits, daysBetween, isDateString, nextFixedAnnual, todayISO } from "./dates.js";
-import { isValidSchedule } from "./schedule.js";
 
 export const UNITS = ["day", "week", "month", "year"];
+
+export function isValidSchedule(schedule) {
+  if (!schedule || typeof schedule !== "object") return false;
+  if (schedule.type === "fixed-annual") {
+    return (
+      Number.isInteger(schedule.month) &&
+      schedule.month >= 1 &&
+      schedule.month <= 12 &&
+      Number.isInteger(schedule.day) &&
+      schedule.day >= 1 &&
+      schedule.day <= 31
+    );
+  }
+  if (schedule.type === "interval") {
+    return (
+      Number.isInteger(schedule.count) &&
+      schedule.count >= 1 &&
+      UNITS.includes(schedule.unit)
+    );
+  }
+  return false;
+}
 
 export function describeFrequency(schedule) {
   if (!isValidSchedule(schedule)) return "Ikke satt";
