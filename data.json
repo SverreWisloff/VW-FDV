@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-10-24T19:47:33.500Z",
+  "updatedAt": "2026-10-24T19:48:55.341Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -150,6 +150,29 @@
         "type": "interval",
         "count": 2,
         "unit": "month"
+      },
+      "createdAt": "2026-10-24",
+      "active": true
+    },
+    {
+      "id": "ft037a6f7470",
+      "name": "Ta inn utemøbler og grill",
+      "rooms": [
+        "r74c5e74b8c"
+      ],
+      "roomIds": [
+        "r74c5e74b8c"
+      ],
+      "description": "",
+      "frequency": {
+        "type": "fixed-annual",
+        "month": 9,
+        "day": 15
+      },
+      "schedule": {
+        "type": "fixed-annual",
+        "month": 9,
+        "day": 15
       },
       "createdAt": "2026-10-24",
       "active": true
