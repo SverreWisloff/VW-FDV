@@ -3,15 +3,15 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Villa Wisløff – FDV</title>
-    <meta name="description" content="FDV-oppgavetyper og logg." />
+    <title>Villa Wisløff – Vedlikehold</title>
+    <meta name="description" content="Oppgavetyper og oppgaver." />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <header class="site-header">
       <div>
         <h1>Villa Wisløff</h1>
-        <p class="subtitle">FDV-oppgavetyper og Logg</p>
+        <p class="subtitle">Oppgavetyper og Oppgaver</p>
       </div>
       <div class="header-actions">
         <div class="status-pill">
@@ -25,23 +25,23 @@
     <main>
       <div class="topbar">
         <div class="tabs">
-          <button class="tab active" data-tab="typer">FDV-oppgavetyper</button>
-          <button class="tab" data-tab="logg">Logg-oppgaver</button>
+          <button class="tab active" data-tab="typer">Oppgavetyper</button>
+          <button class="tab" data-tab="oppgaver">Oppgaver</button>
           <button class="tab" data-tab="innstillinger">Innstillinger</button>
         </div>
         <div class="actions" style="margin: 0">
-          <button type="button" id="newTypeBtn" class="primary">Ny FDV-oppgavetype</button>
-          <button type="button" id="createLogFromTypeBtn">Opprett loggoppgave fra type</button>
+          <button type="button" id="newTypeBtn" class="primary">Ny oppgavetype</button>
+          <button type="button" id="createLogFromTypeBtn">Opprett oppgave fra oppgavetype</button>
         </div>
       </div>
 
-      <!-- TYPER -->
+      <!-- OPPGAVETYPER -->
       <section class="tab-panel" data-panel="typer">
         <section class="card">
           <div class="card-head">
             <div>
-              <h2>FDV-oppgavetyper</h2>
-              <p>Liste over vedlikeholdsoppgavetyper. Standard sortering: Rom → Oppgavenavn</p>
+              <h2>Oppgavetyper</h2>
+              <p>Oppgavetype = beskrivelse og definisjon av oppgaven. Standard sortering: Rom → Oppgavenavn</p>
             </div>
           </div>
 
@@ -67,13 +67,13 @@
               <tbody></tbody>
             </table>
           </div>
-          <div id="typeEmpty" class="empty-state" hidden>Ingen FDV-oppgavetyper ennå.</div>
+          <div id="typeEmpty" class="empty-state" hidden>Ingen oppgavetyper ennå.</div>
         </section>
 
         <section class="card" id="typeEditor" hidden>
           <div class="card-head">
             <div>
-              <h2 id="typeEditorTitle">Rediger FDV-oppgavetype</h2>
+              <h2 id="typeEditorTitle">Rediger oppgavetype</h2>
               <p>Oppgavenavn, OppgaveOmråde/rom, Hvor ofte, Beskrivelse</p>
             </div>
           </div>
@@ -176,13 +176,13 @@
         </section>
       </section>
 
-      <!-- LOGG -->
-      <section class="tab-panel" data-panel="logg" hidden>
+      <!-- OPPGAVER -->
+      <section class="tab-panel" data-panel="oppgaver" hidden>
         <section class="card">
           <div class="card-head">
             <div>
-              <h2>Logg-oppgaver</h2>
-              <p>Viser både oppgaver som skal gjøres og utførte oppgaver</p>
+              <h2>Oppgaver</h2>
+              <p>Oppgave = hver enkelt instans av en oppgavetype, med frist, utført-status og merknad</p>
             </div>
           </div>
 
@@ -193,7 +193,7 @@
               <button class="filter-chip" data-log-filter="utført">Utført</button>
               <button class="filter-chip" data-log-filter="forfalt">Forfalt</button>
             </div>
-            <div class="muted">Rediger Dato for frist, Check (Utført) og Merknad direkte i tabellen</div>
+            <div class="muted">Rediger Dato for frist, Utført og Merknad direkte i tabellen</div>
           </div>
 
           <div class="table-wrap">

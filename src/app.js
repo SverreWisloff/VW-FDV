@@ -248,7 +248,7 @@ function editType(id) {
   if (!type) return;
   state.selectedTypeId = id;
   els.typeEditor.hidden = false;
-  els.typeEditorTitle.textContent = "Rediger FDV-oppgavetype";
+  els.typeEditorTitle.textContent = "Rediger oppgavetype";
   els.typeId.value = type.id;
   els.typeId.dataset.rooms = JSON.stringify(type.rooms || type.roomIds || []);
   els.typeName.value = type.name || "";
@@ -275,7 +275,7 @@ function editType(id) {
 function newType() {
   state.selectedTypeId = null;
   els.typeEditor.hidden = false;
-  els.typeEditorTitle.textContent = "Ny FDV-oppgavetype";
+  els.typeEditorTitle.textContent = "Ny oppgavetype";
   els.typeId.value = "";
   els.typeId.dataset.rooms = "[]";
   els.typeName.value = "";
@@ -378,7 +378,7 @@ function markLogChanged(entry) {
   state.data.logEntries = Array.isArray(state.data.logEntries) ? state.data.logEntries : [];
   const idx = state.data.logEntries.findIndex((e) => e.id === entry.id);
   if (idx >= 0) state.data.logEntries[idx] = entry;
-  saveData("Oppdater loggoppgave");
+  saveData("Oppdater oppgave");
 }
 
 function makeClient() {
@@ -458,7 +458,7 @@ els.settingsBtn.addEventListener("click", () => showTab("innstillinger"));
 els.newTypeBtn.addEventListener("click", newType);
 els.createLogFromTypeBtn.addEventListener("click", () => {
   if (!state.selectedTypeId) {
-    log("Velg en FDV-oppgavetype først.", "warn");
+    log("Velg en oppgavetype først.", "warn");
     showTab("typer");
     return;
   }
@@ -471,8 +471,8 @@ els.createLogFromTypeBtn.addEventListener("click", () => {
   if (entry) {
     state.data.logEntries.push(entry);
     renderLog();
-    saveData(`Opprett loggoppgave fra ${type.name}`);
-    showTab("logg");
+    saveData(`Opprett oppgave fra ${type.name}`);
+    showTab("oppgaver");
   }
 });
 
@@ -524,7 +524,7 @@ els.typeForm.addEventListener("submit", async (event) => {
   state.selectedTypeId = type.id;
   renderRooms();
   renderTypes();
-  await saveData(`Lagre FDV-oppgavetype: ${type.name}`);
+  await saveData(`Lagre oppgavetype: ${type.name}`);
   els.typeEditor.hidden = true;
 });
 
