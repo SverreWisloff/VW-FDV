@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-10-24T19:40:06.190Z",
+  "updatedAt": "2026-10-24T19:47:20.220Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -204,7 +204,7 @@
         "month": 11,
         "day": 1
       },
-      "dueDate": "2026-11-01",
+      "dueDate": "2026-10-01",
       "done": false,
       "doneDate": "",
       "note": "",
@@ -234,6 +234,60 @@
       "dueDate": "2026-10-24",
       "done": true,
       "doneDate": "2026-10-24",
+      "note": "",
+      "merknad": ""
+    },
+    {
+      "id": "lg1576de58b5",
+      "typeId": "t47a43d3c3",
+      "name": "Rense dusj-sluket",
+      "rooms": [
+        "reac2ad84ae"
+      ],
+      "roomIds": [
+        "reac2ad84ae"
+      ],
+      "description": "",
+      "frequency": {
+        "type": "interval",
+        "count": 1,
+        "unit": "month"
+      },
+      "schedule": {
+        "type": "interval",
+        "count": 1,
+        "unit": "month"
+      },
+      "dueDate": "2026-11-24",
+      "done": false,
+      "doneDate": "",
+      "note": "",
+      "merknad": ""
+    },
+    {
+      "id": "lgf6321ef887",
+      "typeId": "ft52933ca3d0",
+      "name": "Rense dusj-sluket",
+      "rooms": [
+        "r6c033afc2b"
+      ],
+      "roomIds": [
+        "r6c033afc2b"
+      ],
+      "description": "",
+      "frequency": {
+        "type": "interval",
+        "count": 2,
+        "unit": "month"
+      },
+      "schedule": {
+        "type": "interval",
+        "count": 2,
+        "unit": "month"
+      },
+      "dueDate": "2026-12-24",
+      "done": false,
+      "doneDate": "",
       "note": "",
       "merknad": ""
     }
