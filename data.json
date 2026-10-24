@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-10-24T19:06:34.441Z",
+  "updatedAt": "2026-10-24T19:06:36.550Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -150,8 +150,8 @@
         "unit": "month"
       },
       "dueDate": "2026-10-23",
-      "done": false,
-      "doneDate": "",
+      "done": true,
+      "doneDate": "2026-10-23",
       "note": "",
       "merknad": ""
     },
