@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-24T17:31:15.306Z",
+  "updatedAt": "2026-10-24T17:31:25.634Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -17,6 +17,10 @@
     {
       "id": "ae8c428ca9",
       "name": "Bad-Gjeste"
+    },
+    {
+      "id": "a3d7b35f16",
+      "name": "Bad-Toril"
     }
   ],
   "tasks": [],
