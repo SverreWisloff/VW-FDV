@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="nb">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Villa Wisløff – milepæl 0</title>
+    <meta name="description" content="Spike: les og skriv data.json via GitHub Contents API." />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>Villa Wisløff</h1>
+      <p class="subtitle">Milepæl 0 – spike for lesing og skriving av <code>data.json</code></p>
+    </header>
+
+    <main>
+      <section class="card" aria-labelledby="tilgang">
+        <h2 id="tilgang">Tilgang</h2>
+        <p class="hint">
+          Tokenet lagres bare i denne nettleseren. Det skal aldri inn i koden eller i
+          <code>data.json</code>. Uten token kan appen lese, men ikke lagre.
+        </p>
+        <form id="configForm" autocomplete="off">
+          <div class="grid">
+            <label>
+              Eier
+              <input id="owner" name="owner" type="text" placeholder="github-bruker" required />
+            </label>
+            <label>
+              Repo
+              <input id="repo" name="repo" type="text" placeholder="vw-fdv" required />
+            </label>
+            <label>
+              Branch
+              <input id="branch" name="branch" type="text" placeholder="main" />
+            </label>
+          </div>
+          <label>
+            Token (fine-grained PAT, Contents: Read and write)
+            <input id="token" name="token" type="password" placeholder="github_pat_…" autocomplete="off" spellcheck="false" />
+          </label>
+          <p class="hint" id="tokenState" aria-live="polite"></p>
+          <div class="actions">
+            <button type="submit" class="primary">Lagre innstillinger</button>
+            <button type="button" id="logoutBtn">Logg ut</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card" aria-labelledby="data">
+        <div class="card-head">
+          <h2 id="data">Data</h2>
+          <span id="dirty" class="badge" hidden>Ulagrede endringer</span>
+        </div>
+
+        <div class="actions">
+          <button type="button" id="readBtn" class="primary">Les data</button>
+          <span class="sha" id="shaText">Ingen data lastet</span>
+        </div>
+
+        <p id="summary" class="summary"></p>
+        <ul id="areaList" class="area-list"></ul>
+
+        <form id="areaForm" class="inline-form">
+          <label class="grow">
+            Nytt område
+            <input id="areaName" type="text" placeholder="For eksempel: Ute" />
+          </label>
+          <button type="submit">Legg til</button>
+        </form>
+
+        <form id="saveForm" class="inline-form">
+          <label class="grow">
+            Commit-melding
+            <input id="commitMessage" type="text" value="Oppdater data.json" />
+          </label>
+          <button type="submit" class="primary">Lagre til GitHub</button>
+        </form>
+
+        <div id="conflict" class="conflict" hidden>
+          <p>
+            <strong>Konflikt:</strong> filen er endret av noen andre. Last på nytt for å
+            hente deres versjon, eller overskriv med det du har her.
+          </p>
+          <div class="actions">
+            <button type="button" id="reloadBtn" class="primary">Last på nytt</button>
+            <button type="button" id="overwriteBtn">Overskriv med mine endringer</button>
+          </div>
+        </div>
+
+        <details>
+          <summary>Rå JSON</summary>
+          <pre id="jsonView"></pre>
+        </details>
+      </section>
+
+      <section class="card" aria-labelledby="logg">
+        <h2 id="logg">Logg</h2>
+        <ul id="log" class="log" aria-live="polite"></ul>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        Spike for milepæl 0. Plan:
+        <a href="docs/plans/2026-10-24-villa-wisloeff-vedlikehold.md">docs/plans/2026-10-24-villa-wisloeff-vedlikehold.md</a>
+      </p>
+    </footer>
+
+    <script type="module">
+      import {
+        GitHubError,
+        clearToken,
+        createClient,
+        getConfig,
+        getToken,
+        hasToken,
+        saveConfig,
+        saveToken,
+      } from "./src/github.js";
+
+      const els = {
+        configForm: document.querySelector("#configForm"),
+        owner: document.querySelector("#owner"),
+        repo: document.querySelector("#repo"),
+        branch: document.querySelector("#branch"),
+        token: document.querySelector("#token"),
+        tokenState: document.querySelector("#tokenState"),
+        logoutBtn: document.querySelector("#logoutBtn"),
+        readBtn: document.querySelector("#readBtn"),
+        shaText: document.querySelector("#shaText"),
+        dirty: document.querySelector("#dirty"),
+        summary: document.querySelector("#summary"),
+        areaList: document.querySelector("#areaList"),
+        areaForm: document.querySelector("#areaForm"),
+        areaName: document.querySelector("#areaName"),
+        saveForm: document.querySelector("#saveForm"),
+        commitMessage: document.querySelector("#commitMessage"),
+        conflict: document.querySelector("#conflict"),
+        reloadBtn: document.querySelector("#reloadBtn"),
+        overwriteBtn: document.querySelector("#overwriteBtn"),
+        jsonView: document.querySelector("#jsonView"),
+        log: document.querySelector("#log"),
+      };
+
+      const state = {
+        client: null,
+        data: null,
+        sha: "",
+        dirty: false,
+        busy: false,
+      };
+
+      function freshData() {
+        return {
+          schemaVersion: 1,
+          updatedAt: new Date().toISOString(),
+          areas: [],
+          tasks: [],
+          completions: [],
+        };
+      }
+
+      function newId(prefix) {
+        const raw = globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2);
+        return prefix + raw.replace(/-/g, "").slice(0, 8);
+      }
+
+      function log(message, kind = "info") {
+        const item = document.createElement("li");
+        item.className = `log-${kind}`;
+        const time = new Date().toLocaleTimeString("nb-NO", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+        item.textContent = `${time} – ${message}`;
+        els.log.prepend(item);
+      }
+
+      function setBusy(busy) {
+        state.busy = busy;
+        for (const button of document.querySelectorAll("button")) {
+          if (button.id === "logoutBtn") continue;
+          button.disabled = busy;
+        }
+      }
+
+      function restoreConfig() {
+        const config = getConfig();
+        els.owner.value = config.owner;
+        els.repo.value = config.repo;
+        els.branch.value = config.branch;
+        els.token.value = "";
+        updateTokenState();
+      }
+
+      function updateTokenState() {
+        if (hasToken()) {
+          els.token.placeholder = "Token er lagret – la feltet stå tomt for å beholde det";
+          els.tokenState.textContent = "Token er lagret i denne nettleseren. Lagring er mulig.";
+          return;
+        }
+        els.token.placeholder = "github_pat_…";
+        els.tokenState.textContent = "Ingen token lagret. Appen kan lese, men ikke lagre.";
+      }
+
+      function persistConfig() {
+        const config = saveConfig({
+          owner: els.owner.value,
+          repo: els.repo.value,
+          branch: els.branch.value,
+        });
+
+        const typedToken = els.token.value.trim();
+        if (typedToken) {
+          saveToken(typedToken);
+          els.token.value = "";
+          log("Token lagret i localStorage.", "ok");
+        }
+
+        updateTokenState();
+        state.client = null;
+        return config;
+      }
+
+      function makeClient() {
+        const config = getConfig();
+        if (state.client) return state.client;
+        state.client = createClient(config);
+        return state.client;
+      }
+
+      function render() {
+        const data = state.data;
+        els.dirty.hidden = !state.dirty;
+        els.shaText.textContent = state.sha
+          ? `sha ${state.sha.slice(0, 7)}`
+          : "Ingen data lastet";
+
+        els.areaList.replaceChildren();
+        if (!data) {
+          els.summary.textContent = "Ingen data lastet ennå.";
+          els.jsonView.textContent = "";
+          return;
+        }
+
+        const areas = Array.isArray(data.areas) ? data.areas : [];
+        const tasks = Array.isArray(data.tasks) ? data.tasks : [];
+        const completions = Array.isArray(data.completions) ? data.completions : [];
+
+        els.summary.textContent = `${areas.length} områder · ${tasks.length} oppgaver · ${completions.length} fullføringer · schemaVersion ${data.schemaVersion ?? "?"}`;
+
+        if (areas.length === 0) {
+          const empty = document.createElement("li");
+          empty.className = "muted";
+          empty.textContent = "Ingen områder ennå.";
+          els.areaList.append(empty);
+        } else {
+          for (const area of areas) {
+            const item = document.createElement("li");
+            item.textContent = area?.name ?? "(uten navn)";
+            els.areaList.append(item);
+          }
+        }
+
+        els.jsonView.textContent = JSON.stringify(data, null, 2);
+      }
+
+      function handleError(error) {
+        if (error instanceof GitHubError) {
+          log(error.message, error.kind === "conflict" ? "warn" : "error");
+          els.conflict.hidden = error.kind !== "conflict";
+          return;
+        }
+        log("Uventet feil: " + (error?.message ?? String(error)), "error");
+        console.error(error);
+      }
+
+      async function readFromGitHub({ quiet = false } = {}) {
+        if (state.busy) return;
+        try {
+          setBusy(true);
+          const client = makeClient();
+          const { data, sha } = await client.readData();
+          state.client = client;
+          state.data = data ?? freshData();
+          state.sha = sha;
+          state.dirty = false;
+          els.conflict.hidden = true;
+          render();
+          log(`Leste data.json (sha ${sha.slice(0, 7)}).`, "ok");
+        } catch (error) {
+          if (!quiet) handleError(error);
+        } finally {
+          setBusy(false);
+        }
+      }
+
+      async function saveToGitHub(sha = state.sha) {
+        if (state.busy) return;
+        if (!state.data) {
+          log("Les data først, så det er noe å lagre.", "warn");
+          return;
+        }
+        if (!hasToken()) {
+          log("Du må legge inn et token for å lagre. Uten token er appen bare lesbar.", "warn");
+          return;
+        }
+
+        const data = {
+          ...state.data,
+          updatedAt: new Date().toISOString(),
+        };
+        const message = els.commitMessage.value.trim() || "Oppdater data.json";
+
+        try {
+          setBusy(true);
+          const result = await makeClient().writeData(data, sha, message);
+          state.data = data;
+          state.sha = result.sha || sha;
+          state.dirty = false;
+          els.conflict.hidden = true;
+          render();
+          log(
+            `Lagret. Commit ${(result.commit?.sha ?? result.sha ?? "").slice(0, 7) || "opprettet"}.`,
+            "ok",
+          );
+        } catch (error) {
+          handleError(error);
+          if (error instanceof GitHubError && error.kind === "conflict") {
+            state.dirty = true;
+            render();
+          }
+        } finally {
+          setBusy(false);
+        }
+      }
+
+      function markChanged() {
+        state.dirty = true;
+        render();
+      }
+
+      els.configForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        try {
+          persistConfig();
+          log("Innstillinger lagret.", "ok");
+          if (els.owner.value.trim() && els.repo.value.trim()) {
+            readFromGitHub({ quiet: true });
+          }
+        } catch (error) {
+          handleError(error);
+        }
+      });
+
+      els.logoutBtn.addEventListener("click", () => {
+        clearToken();
+        state.client = null;
+        els.token.value = "";
+        updateTokenState();
+        log("Token slettet. Appen er nå bare lesbar.", "ok");
+      });
+
+      els.readBtn.addEventListener("click", () => {
+        if (state.dirty && !confirm("Du har ulagrede endringer. Lese på nytt og forkaste dem?")) {
+          return;
+        }
+        readFromGitHub();
+      });
+
+      els.areaForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const name = els.areaName.value.trim();
+        if (!name) {
+          log("Skriv et navn på området.", "warn");
+          return;
+        }
+        if (!state.data) {
+          log("Les data først.", "warn");
+          return;
+        }
+        state.data.areas = Array.isArray(state.data.areas) ? state.data.areas : [];
+        state.data.areas.push({ id: newId("a"), name });
+        els.areaName.value = "";
+        markChanged();
+        log(`La til området «${name}». Husk å lagre.`, "ok");
+      });
+
+      els.saveForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        saveToGitHub();
+      });
+
+      els.reloadBtn.addEventListener("click", () => {
+        els.conflict.hidden = true;
+        state.dirty = false;
+        readFromGitHub();
+      });
+
+      els.overwriteBtn.addEventListener("click", async () => {
+        if (!confirm("Dette erstatter versjonen på GitHub med det du har her. Fortsette?")) return;
+        try {
+          setBusy(true);
+          const client = makeClient();
+          const fresh = await client.readData();
+          setBusy(false);
+          await saveToGitHub(fresh.sha);
+        } catch (error) {
+          setBusy(false);
+          handleError(error);
+        }
+      });
+
+      window.addEventListener("beforeunload", (event) => {
+        if (!state.dirty) return;
+        event.preventDefault();
+        event.returnValue = "";
+      });
+
+      restoreConfig();
+      render();
+
+      const savedConfig = getConfig();
+      if (savedConfig.owner && savedConfig.repo) {
+        readFromGitHub({ quiet: true });
+      }
+    </script>
+  </body>
+</html>
