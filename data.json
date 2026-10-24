@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-24T17:31:33.014Z",
+  "updatedAt": "2026-10-24T17:31:40.689Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -25,6 +25,10 @@
     {
       "id": "ac1645b0b5",
       "name": "Bad-Kjeller"
+    },
+    {
+      "id": "a1c2686d13",
+      "name": "Kjøkken"
     }
   ],
   "tasks": [],
