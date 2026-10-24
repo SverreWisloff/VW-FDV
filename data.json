@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-10-24T19:39:42.831Z",
+  "updatedAt": "2026-10-24T19:40:06.190Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -127,6 +127,29 @@
         "type": "fixed-annual",
         "month": 11,
         "day": 1
+      },
+      "createdAt": "2026-10-24",
+      "active": true
+    },
+    {
+      "id": "ft52933ca3d0",
+      "name": "Rense dusj-sluket",
+      "rooms": [
+        "r6c033afc2b"
+      ],
+      "roomIds": [
+        "r6c033afc2b"
+      ],
+      "description": "",
+      "frequency": {
+        "type": "interval",
+        "count": 2,
+        "unit": "month"
+      },
+      "schedule": {
+        "type": "interval",
+        "count": 2,
+        "unit": "month"
       },
       "createdAt": "2026-10-24",
       "active": true
