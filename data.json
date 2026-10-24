@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-10-24T19:04:04.131Z",
+  "updatedAt": "2026-10-24T19:04:17.292Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -106,8 +106,12 @@
     {
       "id": "t746dc27fb",
       "name": "Rense taknedløpet høst",
-      "rooms": [],
-      "roomIds": [],
+      "rooms": [
+        "r424ae55daf"
+      ],
+      "roomIds": [
+        "r424ae55daf"
+      ],
       "description": "",
       "frequency": {
         "type": "fixed-annual",
