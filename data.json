@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-10-24T19:03:52.217Z",
+  "updatedAt": "2026-10-24T19:04:04.131Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -60,8 +60,12 @@
     {
       "id": "td7dd6a9cc",
       "name": "Stenge utekrana",
-      "rooms": [],
-      "roomIds": [],
+      "rooms": [
+        "r74c5e74b8c"
+      ],
+      "roomIds": [
+        "r74c5e74b8c"
+      ],
       "description": "Ta inn slange, stenge krana i kjeller",
       "frequency": {
         "type": "fixed-annual",
