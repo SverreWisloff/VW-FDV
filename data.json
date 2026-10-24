@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 1,
-  "updatedAt": "2026-10-24T17:39:43.462Z",
+  "schemaVersion": 2,
+  "updatedAt": "2026-10-24T19:02:40.287Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -39,6 +39,75 @@
       "name": "Tak"
     }
   ],
+  "rooms": [
+    {
+      "id": "r424ae55daf",
+      "name": "Tak",
+      "areaId": ""
+    }
+  ],
+  "fdvTaskTypes": [
+    {
+      "id": "td7dd6a9cc",
+      "name": "Stenge utekrana",
+      "rooms": [],
+      "roomIds": [],
+      "description": "Ta inn slange, stenge krana i kjeller",
+      "frequency": {
+        "type": "fixed-annual",
+        "month": 10,
+        "day": 1
+      },
+      "schedule": {
+        "type": "fixed-annual",
+        "month": 10,
+        "day": 1
+      },
+      "createdAt": "2026-10-24",
+      "active": true
+    },
+    {
+      "id": "t47a43d3c3",
+      "name": "Resne sluket",
+      "rooms": [],
+      "roomIds": [],
+      "description": "",
+      "frequency": {
+        "type": "interval",
+        "count": 1,
+        "unit": "month",
+        "anchor": "2026-10-24"
+      },
+      "schedule": {
+        "type": "interval",
+        "count": 1,
+        "unit": "month",
+        "anchor": "2026-10-24"
+      },
+      "createdAt": "2026-10-24",
+      "active": true
+    },
+    {
+      "id": "t746dc27fb",
+      "name": "Rense taknedløpet høst",
+      "rooms": [],
+      "roomIds": [],
+      "description": "",
+      "frequency": {
+        "type": "fixed-annual",
+        "month": 11,
+        "day": 1
+      },
+      "schedule": {
+        "type": "fixed-annual",
+        "month": 11,
+        "day": 1
+      },
+      "createdAt": "2026-10-24",
+      "active": true
+    }
+  ],
+  "logEntries": [],
   "tasks": [
     {
       "id": "td7dd6a9cc",
