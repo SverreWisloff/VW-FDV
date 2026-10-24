@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-24T17:31:25.634Z",
+  "updatedAt": "2026-10-24T17:31:33.014Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -21,6 +21,10 @@
     {
       "id": "a3d7b35f16",
       "name": "Bad-Toril"
+    },
+    {
+      "id": "ac1645b0b5",
+      "name": "Bad-Kjeller"
     }
   ],
   "tasks": [],
