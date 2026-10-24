@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-10-24T19:05:15.296Z",
+  "updatedAt": "2026-10-24T19:05:28.456Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -127,7 +127,35 @@
       "active": true
     }
   ],
-  "logEntries": [],
+  "logEntries": [
+    {
+      "id": "lg6a55c2eaec",
+      "typeId": "t47a43d3c3",
+      "name": "Rense dusj-sluket",
+      "rooms": [
+        "reac2ad84ae"
+      ],
+      "roomIds": [
+        "reac2ad84ae"
+      ],
+      "description": "",
+      "frequency": {
+        "type": "interval",
+        "count": 1,
+        "unit": "month"
+      },
+      "schedule": {
+        "type": "interval",
+        "count": 1,
+        "unit": "month"
+      },
+      "dueDate": "2026-11-24",
+      "done": false,
+      "doneDate": "",
+      "note": "",
+      "merknad": ""
+    }
+  ],
   "tasks": [
     {
       "id": "td7dd6a9cc",
