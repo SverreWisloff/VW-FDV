@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-10-24T22:15:15.462Z",
+  "updatedAt": "2026-10-31T15:45:17.124Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -58,6 +58,11 @@
     {
       "id": "r6c033afc2b",
       "name": "Bad-Toril",
+      "areaId": ""
+    },
+    {
+      "id": "rc1eee589e9",
+      "name": "Latterli",
       "areaId": ""
     }
   ],
