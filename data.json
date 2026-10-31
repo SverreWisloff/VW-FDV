@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-10-31T15:45:44.036Z",
+  "updatedAt": "2026-10-31T15:47:28.802Z",
   "areas": [
     {
       "id": "a247ebdbc",
@@ -246,6 +246,31 @@
       "schedule": {
         "type": "fixed-annual",
         "month": 10,
+        "day": 1
+      },
+      "createdAt": "2026-10-31",
+      "active": true
+    },
+    {
+      "id": "ft7aec86e0fc",
+      "name": "Rense ventiler på bad",
+      "rooms": [
+        "reac2ad84ae",
+        "r6c033afc2b"
+      ],
+      "roomIds": [
+        "reac2ad84ae",
+        "r6c033afc2b"
+      ],
+      "description": "",
+      "frequency": {
+        "type": "fixed-annual",
+        "month": 12,
+        "day": 1
+      },
+      "schedule": {
+        "type": "fixed-annual",
+        "month": 12,
         "day": 1
       },
       "createdAt": "2026-10-31",
